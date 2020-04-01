@@ -31,7 +31,10 @@ The training data comprises two different files:
 
 The Session ID in yoochoose-buys.dat will always exist in the yoochoose-clicks.dat file – the records with the same Session ID together form the sequence of click events of a certain user during the session. The session could be short (few minutes) or very long (few hours), it could have one click or hundreds of clicks. All depends on the activity of the user. Download it from:
 
-https://2015.recsyschallenge.com/papersubmission.html 
+https://2015.recsyschallenge.com/
+
+* Create a folder called `data`, in the root map
+* Place all the files there
 
 ## The preprocessing
 
