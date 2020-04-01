@@ -7,7 +7,7 @@ Given a sequence of click events performed by some user during a typical session
 * Is the user going to buy items in this session? Yes|No
 * If yes, what are the items that are going to be bought?
 
-In this repository we will go for the first one
+    In this repository we will go for the first one
 
 ## The data
 
