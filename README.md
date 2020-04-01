@@ -29,6 +29,8 @@ The training data comprises two different files:
         Price – the price of the item.
         Quantity – how many of this item were bought.
 
-The Session ID in yoochoose-buys.dat will always exist in the yoochoose-clicks.dat file – the records with the same Session ID together form the sequence of click events of a certain user during the session. The session could be short (few minutes) or very long (few hours), it could have one click or hundreds of clicks. All depends on the activity of the user. 
+The Session ID in yoochoose-buys.dat will always exist in the yoochoose-clicks.dat file – the records with the same Session ID together form the sequence of click events of a certain user during the session. The session could be short (few minutes) or very long (few hours), it could have one click or hundreds of clicks. All depends on the activity of the user. Download it from:
+
+https://2015.recsyschallenge.com/papersubmission.html 
 
 ## The preprocessing
