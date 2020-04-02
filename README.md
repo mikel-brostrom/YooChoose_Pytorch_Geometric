@@ -11,7 +11,7 @@ In this repository we will go for the first one
 
 ## The approach
 
-Low-dimensional embeddings of nodes in large graphs have proved extremely useful in a variety of prediction tasks. The basic idea behind node embedding approaches is to use dimensionality reduction techniques to distill the high-dimensional information about a node’s graph neighborhood into a dense vector embedding. Previous research works have focused on embedding nodes from a single fixed graph, and many real-world applications require embeddings to be quickly generated for unseen nodes, or entirely new (sub)graphs. Hence, the idea is to use GraphSAGE (SAmple and aggreGatE). It uses leverage node features (e.g., text attributes, node profile information, node degrees) in order to learn an embedding function that generalizes to unseen nodes
+Low-dimensional embeddings of nodes in large graphs have proved extremely useful in a variety of prediction tasks. The basic idea behind node embedding approaches is to use dimensionality reduction techniques to distill the high-dimensional information about a node’s graph neighborhood into a dense vector embedding. Previous research works have focused on embedding nodes from a single fixed graph, and many real-world applications require embeddings to be quickly generated for unseen nodes, or entirely new (sub)graphs. Hence, the idea is to use GraphSAGE (SAmple and aggreGatE). It uses node features (e.g., text attributes, node profile information, node degrees) in order to learn an embedding function that generalizes to unseen nodes
 
 ## The data
 
