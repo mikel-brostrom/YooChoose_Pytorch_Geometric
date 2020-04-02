@@ -38,7 +38,7 @@ https://2015.recsyschallenge.com/
 
 ## The preprocessing
 
-we subsample and then preprocess it so that it can be fed to our model. item_ids are categorically encoded to ensure the encoded item_ids, which will later be mapped to an embedding matrix, starts at 0.  subsample and then
+we subsample and then preprocess this portion of the dataset. item_ids are categorically encoded to ensure the encoded item_ids, which will later be mapped to an embedding matrix, starts at 0.
 
 we treat each item in a session as a node, and therefore all items in the same session form a graph. To build the dataset, we group the preprocessed data by session_id and iterate over these groups. In each iteration, the item_id in each group are categorically encoded again since for each graph, the node index should count from 0.
 
