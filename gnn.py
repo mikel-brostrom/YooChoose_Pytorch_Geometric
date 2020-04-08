@@ -24,7 +24,7 @@ import torch.nn.functional as F
 
 np.random.seed(42)
 
-datatset_size = 100000
+datatset_size = 10000
 
 clicks_df = pd.read_csv('./data/yoochoose-clicks.dat', header=None)
 clicks_df.columns = ['session_id', 'timestamp', 'item_id', 'category']
@@ -164,8 +164,9 @@ def train(loader):
     model.train()
 
     loss_all = 0
-    num_epochs = 1
+    num_epochs = 30
     for epoch in range(num_epochs):
+        print(epoch)
         for data in loader:
             data = data.to(device)
             optimizer.zero_grad()
@@ -175,7 +176,7 @@ def train(loader):
             loss.backward()
             loss_all += data.num_graphs * loss.item()
             optimizer.step()
-            print(loss)
+            #print(loss)
     return loss_all / len(train_dataset)
 
 
