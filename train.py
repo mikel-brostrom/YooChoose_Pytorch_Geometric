@@ -9,9 +9,6 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from test import test
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
-from sklearn.metrics import plot_roc_curve
-
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -22,13 +19,45 @@ results_file = 'results.txt'
 
 
 def train(args, model, device, train_loader, test_loader, val_loader, optimizer, save=True):
+
+    # writer will output to ./runs/ directory by default
     tb_writer = SummaryWriter()
+
+    # because this is a binary classification problem
     crit = torch.nn.BCELoss()
 
+    # the number of batches
     nb = train_loader.__len__()
 
+    # initialize the roc auc score
     best_roc_auc_score = 0
-    for epoch in range(1, args.epochs + 1):
+    start_epoch = 0
+
+    if args.weights.endswith('.pt'):  # pytorch format
+
+        chkpt = torch.load(args.weights, map_location=device)
+
+        # load model
+        try:
+            model.load_state_dict(chkpt['model'], strict=False)
+        except KeyError as e:
+            print(e)
+            exit()
+
+        # load optimizer
+        if chkpt['optimizer'] is not None:
+            optimizer.load_state_dict(chkpt['optimizer'])
+            best_roc_auc_score = chkpt['best_fitness']
+
+        # load results
+        if chkpt.get('training_results') is not None:
+            with open(results_file, 'w') as file:
+                file.write(chkpt['training_results'])  # write results.txt
+
+        start_epoch = chkpt['epoch'] + 1
+        del chkpt
+
+    for epoch in range(start_epoch, args.epochs + 1):
 
         # ----------------------------------------------------------------
         # start epoch ----------------------------------------------------
@@ -46,13 +75,16 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
             # ----------------------------------------------------------------
 
             data = data.to(device)
-            optimizer.zero_grad()  # zero the gradient buffers
+            # zero the gradient buffers
+            optimizer.zero_grad()
+            # classify batch
             output = model(data)
             label = data.y.to(device)
             loss = crit(output, label)
             # loss = F.nll_loss(output, label)
             loss.backward()
-            optimizer.step()  # Does the update
+            # update weights
+            optimizer.step()
 
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -66,7 +98,7 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
         # Update scheduler
         # scheduler.step()
 
-        
+        final_epoch = epoch + 1 == args.epochs
 
         # Update best roc_auc_score
         roc_auc_score = test(test_loader, model, device)
@@ -93,7 +125,9 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
                 # Create checkpoint
                 chkpt = {'epoch': epoch,
                          'best_fitness': best_roc_auc_score,
-                         'training_results': f.read()}
+                         'training_results': f.read(),
+                         'model': model.state_dict(),
+                         'optimizer': None if final_epoch else optimizer.state_dict()}
 
             # Save last checkpoint
             torch.save(chkpt, last)
@@ -125,8 +159,12 @@ def main():
                         help='number of epochs to train (default: 14)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
+    parser.add_argument('--weights', type=str, default='',
+                        help='initial weights path')
 
     args = parser.parse_args()
+
+    args.weights = last if args.resume else args.weights
 
     print('\n\n\tTrain...\n')
 
@@ -140,7 +178,6 @@ def main():
     batch_size = 512
 
     dataset = LoadData('./data/processed.dataset')
-    # dataset = torch.load('./data/processed.dataset')
 
     one_tenth_length = int(len(dataset) * 0.1)
     train_dataset = dataset[:one_tenth_length * 8]

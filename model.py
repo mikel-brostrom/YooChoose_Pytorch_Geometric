@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class Net(torch.nn.Module):
-    def __init__(self, different_ids=52738 + 1, embed_dim=128):
+    def __init__(self, different_ids=52737, embed_dim=128):
         super(Net, self).__init__()
 
         self.conv1 = SAGEConv(embed_dim, 128)
