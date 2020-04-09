@@ -9,8 +9,10 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from test import test
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+from sklearn.metrics import plot_roc_curve
 
-# from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 
 wdir = 'weights' + os.sep  # weights dir
@@ -20,7 +22,7 @@ results_file = 'results.txt'
 
 
 def train(args, model, device, train_loader, test_loader, val_loader, optimizer, save=True):
-    # tb_writer = SummaryWriter()
+    tb_writer = SummaryWriter()
     crit = torch.nn.BCELoss()
 
     nb = train_loader.__len__()
@@ -64,17 +66,19 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
         # Update scheduler
         # scheduler.step()
 
-        # Write Tensorboard results
-        # if tb_writer:
-        #     x = [loss]
-        #     titles = ['MSE']
-        #     for xi, title in zip(x, titles):
-        #         tb_writer.add_scalar(title, xi, epoch)
+        
 
         # Update best roc_auc_score
         roc_auc_score = test(test_loader, model, device)
         roc_auc_score2 = test(val_loader, model, device)
         print('test roc auc score:', roc_auc_score, "val", roc_auc_score2)
+
+        # Write Tensorboard results
+        if tb_writer:
+            x = [roc_auc_score, roc_auc_score2]
+            titles = ['ROC AUC TEST', 'ROC AUC VAL']
+            for xi, title in zip(x, titles):
+                tb_writer.add_scalar(title, xi, epoch)
 
         # Write epoch results
         with open(results_file, 'a') as f:
@@ -109,13 +113,15 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
 def main():
     parser = argparse.ArgumentParser(description='PyTorch Battery')
 
+    parser.add_argument('--resume', action='store_true',
+                        help='resume training from last.pt')
     parser.add_argument('--batch-size', type=int, default=512, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
-    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
                         help='learning rate (default: 1.0)')
-    parser.add_argument('--epochs', type=int, default=100, metavar='N',
+    parser.add_argument('--epochs', type=int, default=400, metavar='N',
                         help='number of epochs to train (default: 14)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
