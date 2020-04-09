@@ -1,2 +1,4 @@
 # exclude everythig in the data folder*
 data/*
+runs/*
+weights/*
