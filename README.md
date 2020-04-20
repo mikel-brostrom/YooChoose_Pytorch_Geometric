@@ -42,6 +42,12 @@ we subsample and then preprocess this portion of the dataset. item_ids are categ
 
 we treat each item in a session as a node, and therefore all items in the same session form a graph. To build the dataset, we group the preprocessed data by session_id and iterate over these groups. In each iteration, the item_id in each group are categorically encoded again since for each graph, the node index should count from 0.
 
+`preprocess.py` preprocesses the files in the data folder:
+
+```bash
+python3 preprocess.py
+```
+
 ## Requirements
 
 Python 3.7 or later with 
