@@ -3,7 +3,7 @@ import torch
 from dataloader import LoadData
 from torch_geometric.data import DataLoader
 import argparse
-from model import Net
+from model import Net, Net2
 from tqdm import tqdm
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
@@ -81,6 +81,7 @@ def train(args, model, device, train_loader, test_loader, val_loader, optimizer,
             output = model(data)
             label = data.y.to(device)
             loss = crit(output, label)
+            print(loss)
             # loss = F.nll_loss(output, label)
             loss.backward()
             # update weights
@@ -153,7 +154,7 @@ def main():
                         help='input batch size for training (default: 64)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
-    parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                         help='learning rate (default: 1.0)')
     parser.add_argument('--epochs', type=int, default=400, metavar='N',
                         help='number of epochs to train (default: 14)')
@@ -174,9 +175,6 @@ def main():
     model = Net().to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-    # data = load_preprocessed_data()
-    batch_size = 512
-
     dataset = LoadData('./data/processed.dataset')
 
     one_tenth_length = int(len(dataset) * 0.1)
@@ -193,13 +191,13 @@ def main():
                               pin_memory=True)
 
     val_loader = DataLoader(val_dataset,
-                            batch_size=batch_size,
+                            batch_size=args.batch_size,
                             num_workers=1,
                             shuffle=True,
                             pin_memory=True)
 
     test_loader = DataLoader(test_dataset,
-                             batch_size=batch_size,
+                             batch_size=args.batch_size,
                              num_workers=1,
                              shuffle=True,
                              pin_memory=True)
