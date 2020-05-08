@@ -15,6 +15,11 @@ datatset_size = 10000
 #     Category – the category of the item.
 clicks_df = pd.read_csv('./data/yoochoose-clicks.dat', header=None)
 clicks_df.columns = ['session_id', 'timestamp', 'item_id', 'category']
+
+# filter out item session with length < 2
+clicks_df['valid_session'] = clicks_df.session_id.map(clicks_df.groupby('session_id')['item_id'].size() > 2)
+clicks_df = clicks_df.loc[clicks_df.valid_session].drop('valid_session',axis=1)
+print(clicks_df.nunique())
 print(clicks_df.head(5))
 
 # yoochoose-buys.dat - Buy events. Each record/line in the file has the following fields:
@@ -27,7 +32,7 @@ buy_df = pd.read_csv('./data/yoochoose-buys.dat', header=None)
 buy_df.columns = ['session_id', 'timestamp', 'item_id', 'price', 'quantity']
 print(buy_df.head())
 
-# Encode item_id with values between 0 and n_classes - 1
+# Encode item_id with values between 0 and n_classes - 1 (for embedding)
 item_encoder = LabelEncoder()
 clicks_df['item_id'] = item_encoder.fit_transform(clicks_df.item_id)
 print(min(clicks_df['item_id']))
@@ -39,11 +44,15 @@ sampled_session_id = np.random.choice(clicks_df.session_id.unique(), datatset_si
 clicks_df = clicks_df.loc[clicks_df.session_id.isin(sampled_session_id)]
 print(clicks_df.nunique())
 
+# average length of session 
+print(clicks_df.groupby('session_id')['item_id'].size().mean())
+
 # add a boolean column named label to the clicks_df representing wether the click in the session is
 # buy or not
 clicks_df['label'] = clicks_df.session_id.isin(buy_df.session_id)
-print(clicks_df.head())
 
+print(clicks_df.label.value_counts())
+print(clicks_df.label.unique())
 print(clicks_df.item_id.max() + 1)
 
 data_list = []
@@ -54,7 +63,7 @@ for session_id, group in tqdm(grouped):
     sess_item_id = LabelEncoder().fit_transform(group.item_id)
     group = group.reset_index(drop=True)
     group['sess_item_id'] = sess_item_id
-    node_features = group.loc[group.session_id == session_id, ['sess_item_id', 'item_id']].sort_values('sess_item_id').item_id.drop_duplicates().values
+    node_features = group.loc[group.session_id == session_id, ['sess_item_id', 'item_id', 'timestamp']].sort_values('sess_item_id').item_id.drop_duplicates().values
 
     node_features = torch.LongTensor(node_features).unsqueeze(1)
     target_nodes = group.sess_item_id.values[1:]
